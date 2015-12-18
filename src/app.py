@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template, abort, jsonify, request,redirect, json
-from Classifier import classifier
+from Classifier import parallelClassifier
 app = Flask(__name__)
 app.debug = True
 
@@ -12,7 +12,8 @@ def index():
 def learning():
     data = json.loads(request.data)
     # data == {"userInput": "whatever text you entered"}
-    response = classifier(data)
+    # try 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'
+    response = parallelClassifier(data)
     return jsonify(response)
 
 

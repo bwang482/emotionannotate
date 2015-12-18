@@ -1,6 +1,7 @@
 import os, subprocess, json
 import numpy as np
 from sklearn import metrics
+import multiprocessing as mp
 
 from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer2, check_csr
@@ -36,30 +37,69 @@ def predict(tfile,pfile,emo):
 #    output['surprise'] = 'test!'
 #    return output
 
-def classifier(data):
+#def classifier(data):
+#    preds={}
+#    emotions = ['anger','disgust','happy','sad','surprise']
+##    feat = feature_transformer2(data)
+##    feat = check_csr(feat)
+#    for emo in emotions:
+#        dir = '../output/temp2/'+emo
+#        testfile = dir+"/test.scale"
+#        predfile = dir+"/pred"
+#        truefile = dir+'/y_test'
+#        feat = feature_transformer2(data)
+#        feat = check_csr(feat)
+#        writevec(dir+'/testing',feat,1)
+#        scaling(dir)
+#        predict(testfile, predfile,emo)
+#        f2 = open(predfile, 'r')
+#        l2 = f2.readlines()[0].strip()
+#        if (l2 == '1') or (l2 == 1):
+#            p='yes'
+#        else:
+#            p='no'
+#        preds[emo] = p
+#    print preds
+
+def classifier(data,emo,output):
     preds={}
+    dir = '../output/temp2/'+emo
+    testfile = dir+"/test.scale"
+    predfile = dir+"/pred"
+    truefile = dir+'/y_test'
+    feat = feature_transformer2(data,emo)
+    feat = check_csr(feat)
+    writevec(dir+'/testing',feat,1)
+    scaling(dir)
+    predict(testfile, predfile,emo)
+    f2 = open(predfile, 'r')
+    l2 = f2.readlines()[0].strip()
+    if (l2 == '1') or (l2 == 1):
+        p='yes'
+    else:
+        p='no'
+    preds[emo] = p
+    output.put(preds)
+        
+def parallelClassifier(input):
+    output = mp.Queue()
     emotions = ['anger','disgust','happy','sad','surprise']
-    for emo in emotions:
-        dir = '../output/temp2/'+emo
-        testfile = dir+"/test.scale"
-        predfile = dir+"/pred"
-        truefile = dir+'/y_test'
-        feat = feature_transformer2(data,emo)
-        feat = check_csr(feat)
-        writevec(dir+'/testing',feat,1)
-        scaling(dir)
-        predict(testfile, predfile,emo)
-        f2 = open(predfile, 'r')
-        l2 = f2.readlines()[0].strip()
-        if (l2 == '1') or (l2 == 1):
-            p='yes'
-        else:
-            p='no'
-        preds[emo] = p
-    return preds
-        
-        
+    processes = [mp.Process(target=classifier, args=(input, emo, output)) for emo in emotions]
+    # Run processes
+    for p in processes:
+        p.start()
+    # Exit the completed processes
+    for p in processes:
+        p.join()
+    # Get process results from the output queue
+    results_list = [output.get() for p in processes]
+    results = {}
+    for item in results_list:
+       results[item.keys()[0]] = item.values()[0]
+    return results
+
 if __name__ == "__main__":
     input = json.dumps({'userInput': 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'})
     input = json.loads(input)
-    classifier(input)
+    parallelClassifier(input)
+    
