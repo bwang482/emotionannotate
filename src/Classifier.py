@@ -37,30 +37,6 @@ def predict(tfile,pfile,emo):
 #    output['surprise'] = 'test!'
 #    return output
 
-#def classifier(data):
-#    preds={}
-#    emotions = ['anger','disgust','happy','sad','surprise']
-##    feat = feature_transformer2(data)
-##    feat = check_csr(feat)
-#    for emo in emotions:
-#        dir = '../output/temp2/'+emo
-#        testfile = dir+"/test.scale"
-#        predfile = dir+"/pred"
-#        truefile = dir+'/y_test'
-#        feat = feature_transformer2(data)
-#        feat = check_csr(feat)
-#        writevec(dir+'/testing',feat,1)
-#        scaling(dir)
-#        predict(testfile, predfile,emo)
-#        f2 = open(predfile, 'r')
-#        l2 = f2.readlines()[0].strip()
-#        if (l2 == '1') or (l2 == 1):
-#            p='yes'
-#        else:
-#            p='no'
-#        preds[emo] = p
-#    print preds
-
 def classifier(data,emo,output):
     preds={}
     dir = '../output/temp2/'+emo
@@ -82,6 +58,11 @@ def classifier(data,emo,output):
     output.put(preds)
         
 def parallelClassifier(input):
+    preds={}
+    if 'text' in input.keys():
+        preds['text'] = input['text']
+    if 'tweetid' in input.keys():
+        preds['tweetid'] = input['tweetid']
     output = mp.Queue()
     emotions = ['anger','disgust','happy','sad','surprise']
     processes = [mp.Process(target=classifier, args=(input, emo, output)) for emo in emotions]
@@ -96,10 +77,11 @@ def parallelClassifier(input):
     results = {}
     for item in results_list:
        results[item.keys()[0]] = item.values()[0]
-    return results
+    preds['emotions'] = results
+    return preds
 
 if __name__ == "__main__":
-    input = json.dumps({'userInput': 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'})
+    input = json.dumps({'tweetid': '111111', 'text': 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'})
     input = json.loads(input)
     parallelClassifier(input)
     

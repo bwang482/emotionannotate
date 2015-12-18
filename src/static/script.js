@@ -4,7 +4,7 @@ $(document).ready(function(){
         $.ajax({
               type: "POST",
               url: '/learning',
-              data: JSON.stringify({userInput: uInput}),
+              data: JSON.stringify({text: uInput}),
               contentType: 'application/json',
               success: function(response){
                    $("#result1").text(response.anger);
