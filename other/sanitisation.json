@@ -1,0 +1,64 @@
+{
+    "emo": {
+        "anger": [
+            ":-@",
+            ":@"
+        ],
+        "disgust": [
+            ":$",
+            "+o("
+        ],
+        "fear": [
+            ":|",
+            ":-o",
+            ":-O"
+        ],
+        "happy": [
+            ":-)",
+            ":)",
+            ";-)",
+            ":D",
+            ":P",
+            "8)",
+            "8-|",
+            "<@o"
+        ],
+        "sad": [
+            ":-(",
+            ":(",
+            ";-(",
+            ":-<",
+            ":'("
+        ],
+        "surprise": [
+            ":s",
+            ":S"
+        ]
+    },
+    "hash": {
+        "anger": [
+            "#angry",
+            "#anger"
+        ],
+        "disgust": [
+            "#disgusted",
+            "#disgust"
+        ],
+        "fear": [
+            "#scared",
+            "#fear"
+        ],
+        "happy": [
+            "#happy",
+            "#happiness"
+        ],
+        "sad": [
+            "#sad",
+            "#sadness"
+        ],
+        "surprise": [
+            "#surprised",
+            "#surprise"
+        ]
+    }
+}
