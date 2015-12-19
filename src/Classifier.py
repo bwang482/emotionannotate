@@ -7,7 +7,7 @@ from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer2, check_csr
 
 def scaling(dir):
-    cmd2=["../libSVM/svm-scale", "-r", "../liblinear/range", dir+"/testing"]
+    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/range", dir+"/testing"]
     with open(dir+"/test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile2.close()

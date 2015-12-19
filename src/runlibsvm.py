@@ -9,10 +9,10 @@ from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer
 
 def scaling(dir):
-    cmd1=["../libSVM/svm-scale", "-l", "-1", "-u", "1", "-s", "../liblinear/range", dir+"/training"]
+    cmd1=["../libSVM/svm-scale", "-l", "-1", "-u", "1", "-s", "../libSVM/range", dir+"/training"]
     with open(dir+"/train.scale", "w") as outfile1:
         subprocess.call(cmd1, stdout=outfile1)
-    cmd2=["../libSVM/svm-scale", "-r", "../liblinear/range", dir+"/testing"]
+    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/range", dir+"/testing"]
     with open(dir+"/test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile1.close()
