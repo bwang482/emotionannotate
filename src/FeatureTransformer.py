@@ -59,7 +59,7 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
 
 def feature_transformer2(data,emo):
     stopWords = stopwords.words('english')
-    data = [preprocess(data['text'].encode('utf-8'))]
+    data = [preprocess(data['text']).encode('utf-8')]
     lexicon_feat = LexiconVectorizer()
     embed_feat = EmbeddingVectorizer()
     tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
