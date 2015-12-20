@@ -17,8 +17,9 @@ def read_tweets(inputdir):
     
 def write_results(outputdir, results):
     for result in results:
-        with open(outputdir+'/results.json', 'wb') as fp:
+        with open(outputdir+'/results.json', 'a') as fp:
             json.dump(result, fp)
+            fp.write('\n')
 
 def classify(inputdir,outputdir):
     tweets = read_tweets(inputdir)
