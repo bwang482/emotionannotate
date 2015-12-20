@@ -5,6 +5,7 @@ For the SMILE project
 Use 'pip install -r requirement.txt' to install all relevant Python dependancies.
 #### Run web app
 cd src
+
 python app.py
 
 #### Input/output data format
