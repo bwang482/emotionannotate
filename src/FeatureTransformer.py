@@ -5,15 +5,15 @@ from argparse import ArgumentParser
 from nltk.corpus import stopwords
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
-from sklearn import svm
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.feature_selection import SelectPercentile, chi2, SelectFromModel
+#from sklearn.ensemble import RandomForestClassifier
+#from sklearn.preprocessing import StandardScaler
+from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn import svm
+#from sklearn.feature_selection import SelectPercentile, chi2, SelectFromModel
 
 import Config
 from Utilities import load_tweets, format_data
+from Preprocessor import preprocess
 from LexiconFeature import LexiconVectorizer
 from EmbeddingFeature import EmbeddingVectorizer
 
@@ -49,8 +49,8 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     embed_feat = EmbeddingVectorizer()
     tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
     all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('tfidf', tfidf_feat)])
-    Select = SelectFromModel(svm.LinearSVC(C=10, penalty="l1", dual=False))
-    scaler = StandardScaler(with_mean=False)
+#    Select = SelectFromModel(svm.LinearSVC(C=10, penalty="l1", dual=False))
+#    scaler = StandardScaler(with_mean=False)
     pipeline = Pipeline([('all_feature', all_features)])
     feat_train = pipeline.fit_transform(X_train, y_train)
     feat_test = pipeline.transform(X_test)
@@ -59,7 +59,7 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
 
 def feature_transformer2(data,emo):
     stopWords = stopwords.words('english')
-    data = [data['text'].encode('utf-8')]
+    data = [preprocess(data['text'].encode('utf-8'))]
     lexicon_feat = LexiconVectorizer()
     embed_feat = EmbeddingVectorizer()
     tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)

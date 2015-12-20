@@ -4,10 +4,24 @@ import codecs
 import json
 from argparse import ArgumentParser
 from twokenize import tokenizeRawTweetText as tokenize
+import Transformer
 
 TWEET_START = "tweet-start"
 TWEET_END = "tweet-end"
 SPACE = ' '
+
+def preprocess(tweet):
+    abbv_dict = json.load(open("../other/abbreviations.json"))
+    emo_lexica_dict = json.load(open("../other/emotions.json"))
+    for emoticon in emo_lexica_dict[u'emoticons']:
+        abbv_dict[emoticon] = ' '
+    for word in emo_lexica_dict[u'words']:
+        abbv_dict[word] = ' '
+    hash_transformer = Transformer.HashtagTransformer()
+    sub_transformer = Transformer.SubstitutionTransformer(abbv_dict)
+    preprocessor = Preprocessor([hash_transformer, sub_transformer])
+    tweet = preprocessor.transform(tweet)
+    return tweet
 
 class Preprocessor(object):
     """For a given set of transformers, read in a text file containing tweets and preprocess them"""
@@ -56,8 +70,6 @@ class Preprocessor(object):
         return emotiontweets, nonemotiontweets
     
 if __name__ == '__main__':
-    import Transformer
-    import json
     emos = ['happy', 'angry', 'disgust', 'sad', 'surprise']
     
     abbv_dict = json.load(open("../other/abbreviations.json"))
