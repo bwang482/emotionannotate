@@ -11,10 +11,9 @@ def index():
 @app.route('/learning', methods=['POST'])
 def learning():
     data = json.loads(request.data)
-    # data == {"text": "whatever text you entered"}
     # try 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'
-    result = parallelClassifier(data)
-    emotions = result['emotions']
+    result = parallelClassifier([data])
+    emotions = result[0]['emotions']
     return jsonify(emotions)
 
 

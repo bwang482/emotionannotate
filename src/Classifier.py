@@ -11,16 +11,26 @@ def scaling(dir):
     with open(dir+"/test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile2.close()
-
+    
 def writevec(filename,x,y):
     f=open(filename,'wb')
-#    for i in xrange(len(y)):
-    f.write(str(y)+'\t')
-    feature=x.toarray()
-    for (j,k) in enumerate(feature[0]):
-        f.write(str(j+1)+':'+str(k)+' ')
-#    f.write('\n')
+    for i in xrange(x.shape[0]):
+        f.write(str(y)+'\t')
+        feature=x[i].toarray()
+        for (j,k) in enumerate(feature[0]):
+            f.write(str(j+1)+':'+str(k)+' ')
+        f.write('\n')
     f.close() 
+        
+#def writevec(filename,x,y):
+#    f=open(filename,'wb')
+##    for i in xrange(len(y)):
+#    f.write(str(y)+'\t')
+#    feature=x.toarray()
+#    for (j,k) in enumerate(feature[0]):
+#        f.write(str(j+1)+':'+str(k)+' ')
+##    f.write('\n')
+#    f.close() 
 
 def predict(tfile,pfile,emo):
     model='../models/'+'train.'+emo+'.model'
@@ -38,7 +48,8 @@ def predict(tfile,pfile,emo):
 #    return output
 
 def classifier(data,emo,output):
-    preds={}
+    preds=[]
+    pred={}
     dir = '../output/temp2/'+emo
     testfile = dir+"/test.scale"
     predfile = dir+"/pred"
@@ -48,21 +59,19 @@ def classifier(data,emo,output):
     writevec(dir+'/testing',feat,1)
     scaling(dir)
     predict(testfile, predfile,emo)
-    f2 = open(predfile, 'r')
-    l2 = f2.readlines()[0].strip()
-    if (l2 == '1') or (l2 == 1):
-        p='yes'
-    else:
-        p='no'
-    preds[emo] = p
-    output.put(preds)
+    with open(predfile, "r") as f:
+        for l in f.readlines():
+            l = l.strip()
+            if (l == '1') or (l == 1):
+                p='yes'
+            else:
+                p='no'
+            preds.append(p)
+    pred[emo]=preds
+    output.put(pred)
         
 def parallelClassifier(input):
-    preds={}
-    if 'text' in input.keys():
-        preds['text'] = input['text']
-    if 'tweetid' in input.keys():
-        preds['tweetid'] = input['tweetid']
+    preds=[]
     output = mp.Queue()
     emotions = ['anger','disgust','happy','sad','surprise']
     processes = [mp.Process(target=classifier, args=(input, emo, output)) for emo in emotions]
@@ -77,11 +86,22 @@ def parallelClassifier(input):
     results = {}
     for item in results_list:
        results[item.keys()[0]] = item.values()[0]
-    preds['emotions'] = results
+    for i in xrange(len(input)):
+        pred={}
+        if 'text' in input[i].keys():
+            pred['text'] = input[i]['text']
+        if 'tweetid' in input[i].keys():
+            pred['tweetid'] = input[i]['tweetid']
+        emo={}
+        for e in emotions:
+            emo[e] = results[e][i]
+        pred['emotions']=emo
+        preds.append(pred)
     return preds
 
 if __name__ == "__main__":
+    # For testing purpose:
     input = json.dumps({'tweetid': '111111', 'text': 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'})
     input = json.loads(input)
-    parallelClassifier(input)
+    parallelClassifier([input])
     

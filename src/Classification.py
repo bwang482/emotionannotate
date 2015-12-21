@@ -16,17 +16,15 @@ def read_tweets(inputdir):
     return tweets
     
 def write_results(outputdir, results):
+    fp = open(outputdir+'/results.json', 'wb')
     for result in results:
-        with open(outputdir+'/results.json', 'a') as fp:
-            json.dump(result, fp)
-            fp.write('\n')
+        json.dump(result, fp)
+        fp.write('\n')
+    fp.close()
 
 def classify(inputdir,outputdir):
     tweets = read_tweets(inputdir)
-    results = []
-    for tweet in tweets:
-        result = parallelClassifier(tweet)
-        results.append(result)
+    results = parallelClassifier(tweets)
     write_results(outputdir, results)
     
     
