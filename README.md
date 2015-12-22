@@ -7,7 +7,7 @@ Use 'pip install -r requirement.txt' to install all relevant Python dependancies
 cd src
 
 python app.py
-#### Run multi-tweets emotion classification
+#### Run batch classification
 *If you have a list of tweets that you want to run our emotion classifier on, you can:*
 
 cd src
