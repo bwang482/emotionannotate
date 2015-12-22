@@ -2,12 +2,14 @@
 For the SMILE project
 
 #### Set up
+*Python 2.7 with pip 7.1.2*
+
 Use 'pip install -r requirement.txt' to install all relevant Python dependancies.
 #### Run web app
 cd src
 
 python app.py
-#### Run multi-tweets emotion classification
+#### Run batch classification
 *If you have a list of tweets that you want to run our emotion classifier on, you can:*
 
 cd src
