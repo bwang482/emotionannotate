@@ -28,14 +28,14 @@ def predict(tfile,pfile,emo):
     p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
     p.communicate()
 
-def classifier(data,emo,output):
+def classifier(data,emo,output, lexicon_feat, embed_feat):
     preds=[]
     pred={}
     dir = '../output/temp2/'+emo
     testfile = dir+"/test.scale"
     predfile = dir+"/pred"
     truefile = dir+'/y_test'
-    feat = feature_transformer2(data,emo)
+    feat = feature_transformer2(data,emo, lexicon_feat, embed_feat)
     feat = check_csr(feat)
     writevec(dir+'/testing',feat,1)
     scaling(dir,emo)
@@ -51,11 +51,11 @@ def classifier(data,emo,output):
     pred[emo]=preds
     output.put(pred)
         
-def parallelClassifier(input):
+def parallelClassifier(input, lexicon_feat, embed_feat):
     preds=[]
     output = mp.Queue()
     emotions = ['anger','disgust','happy','sad','surprise']
-    processes = [mp.Process(target=classifier, args=(input, emo, output)) for emo in emotions]
+    processes = [mp.Process(target=classifier, args=(input, emo, output, lexicon_feat, embed_feat)) for emo in emotions]
     # Run processes
     for p in processes:
         p.start()
@@ -80,9 +80,26 @@ def parallelClassifier(input):
         preds.append(pred)
     return preds
 
+def initFeatureProcessors():
+    from LexiconFeature import LexiconVectorizer
+    from EmbeddingFeature import EmbeddingVectorizer
+    lexicon_feat = LexiconVectorizer() # Globalise these two transformers
+    embed_feat = EmbeddingVectorizer() # Globalise these two transformers
+    return lexicon_feat, embed_feat
+
 if __name__ == "__main__":
     # For testing purpose:
+    import datetime
+    print "Start\t"+str(datetime.datetime.now())
+    lexicon_feat, embed_feat = initFeatureProcessors()
+    print "Initialised\t"+str(datetime.datetime.now())
+    print "Classifying 1st tweet..."
     input = json.dumps({'tweetid': '111111', 'text': 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'})
     input = json.loads(input)
-    parallelClassifier([input])
-    
+    parallelClassifier([input], lexicon_feat, embed_feat)
+    print "Done\t"+str(datetime.datetime.now())
+    print "Classifying second tweet..."
+    input = json.dumps({'tweetid': '111112', 'text': 'are you a socialist?'})
+    input = json.loads(input)
+    parallelClassifier([input], lexicon_feat, embed_feat)
+    print "Done\t"+str(datetime.datetime.now())

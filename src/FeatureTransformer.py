@@ -60,14 +60,12 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     feat_size = feat_train.shape[1]
     return feat_train, y_train, feat_test, y_test, feat_size
 
-def feature_transformer2(data,emo):
+def feature_transformer2(data,emo, lexicon_feat, embed_feat):
     stopWords = stopwords.words('english')
     if type(data) == dict:
         data = [preprocess(data['text']).encode('utf-8')]
     elif type(data) == list:
         data = [preprocess(d['text']).encode('utf-8') for d in data]
-    lexicon_feat = LexiconVectorizer() # Globalise these two transformers
-    embed_feat = EmbeddingVectorizer() # Globalise these two transformers
     ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, vocabulary=pickle.load(open("../vocab/vocab."+emo+".pkl", "rb")))
     all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
     pipeline = Pipeline([('all_feature', all_features)])
