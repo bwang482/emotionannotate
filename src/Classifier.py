@@ -83,8 +83,8 @@ def parallelClassifier(input, lexicon_feat, embed_feat):
 def initFeatureProcessors():
     from LexiconFeature import LexiconVectorizer
     from EmbeddingFeature import EmbeddingVectorizer
-    lexicon_feat = LexiconVectorizer() # Globalise these two transformers
-    embed_feat = EmbeddingVectorizer() # Globalise these two transformers
+    lexicon_feat = LexiconVectorizer()
+    embed_feat = EmbeddingVectorizer()
     return lexicon_feat, embed_feat
 
 if __name__ == "__main__":
