@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parallelClassifier([input], lexicon_feat, embed_feat)
     print "Done\t"+str(datetime.datetime.now())
     print "Classifying second tweet..."
-    input = json.dumps({'tweetid': '111112', 'text': 'are you a socialist?'})
+    input = json.dumps({'tweetid': '111112', 'text': 'such an AWFUL experience!'})
     input = json.loads(input)
     parallelClassifier([input], lexicon_feat, embed_feat)
     print "Done\t"+str(datetime.datetime.now())
