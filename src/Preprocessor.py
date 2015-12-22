@@ -20,6 +20,7 @@ def preprocess(tweet):
     hash_transformer = Transformer.HashtagTransformer()
     sub_transformer = Transformer.SubstitutionTransformer(abbv_dict)
     preprocessor = Preprocessor([hash_transformer, sub_transformer])
+    tweet = ' '.join(tokenize(tweet))
     tweet = preprocessor.transform(tweet)
     return tweet
 

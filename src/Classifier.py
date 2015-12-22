@@ -6,8 +6,8 @@ import multiprocessing as mp
 from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer2, check_csr
 
-def scaling(dir):
-    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/range", dir+"/testing"]
+def scaling(dir,emo):
+    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/"+emo+".range", dir+"/testing"]
     with open(dir+"/test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile2.close()
@@ -21,31 +21,12 @@ def writevec(filename,x,y):
             f.write(str(j+1)+':'+str(k)+' ')
         f.write('\n')
     f.close() 
-        
-#def writevec(filename,x,y):
-#    f=open(filename,'wb')
-##    for i in xrange(len(y)):
-#    f.write(str(y)+'\t')
-#    feature=x.toarray()
-#    for (j,k) in enumerate(feature[0]):
-#        f.write(str(j+1)+':'+str(k)+' ')
-##    f.write('\n')
-#    f.close() 
 
 def predict(tfile,pfile,emo):
     model='../models/'+'train.'+emo+'.model'
     predcmd=["../libSVM/svm-predict", tfile, model, pfile]
     p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
     p.communicate()
-
-#def classifier(data):
-#    output = {}
-#    output['anger'] = 'test!'
-#    output['disgust'] = 'test!'
-#    output['happy'] = 'test!'
-#    output['sad'] = 'test!'
-#    output['surprise'] = 'test!'
-#    return output
 
 def classifier(data,emo,output):
     preds=[]
@@ -57,7 +38,7 @@ def classifier(data,emo,output):
     feat = feature_transformer2(data,emo)
     feat = check_csr(feat)
     writevec(dir+'/testing',feat,1)
-    scaling(dir)
+    scaling(dir,emo)
     predict(testfile, predfile,emo)
     with open(predfile, "r") as f:
         for l in f.readlines():

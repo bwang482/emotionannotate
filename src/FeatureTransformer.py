@@ -1,13 +1,14 @@
 import numpy as np
 import argparse
 import scipy.sparse
+import cPickle as pickle
 from argparse import ArgumentParser
 from nltk.corpus import stopwords
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
 #from sklearn.ensemble import RandomForestClassifier
 #from sklearn.preprocessing import StandardScaler
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 #from sklearn import svm
 #from sklearn.feature_selection import SelectPercentile, chi2, SelectFromModel
 
@@ -42,13 +43,15 @@ def check_csr(feat):
 
 def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     stopWords = stopwords.words('english')
-#    X_train, X_test, y_train, y_test = format_data(emo, train_pos, train_neg, test_pos, test_neg)
     X_train, y_train = format_data(emo, train_pos, train_neg)
     X_test, y_test = format_data(emo, test_pos, test_neg)
     lexicon_feat = LexiconVectorizer()
     embed_feat = EmbeddingVectorizer()
-    tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
-    all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('tfidf', tfidf_feat)])
+    ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01)
+    ngram_feat.fit(X_train)
+    pickle.dump(ngram_feat.vocabulary_,open("../vocab/vocab."+emo+".pkl","wb")) # save vocabs
+#    tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
+    all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
 #    Select = SelectFromModel(svm.LinearSVC(C=10, penalty="l1", dual=False))
 #    scaler = StandardScaler(with_mean=False)
     pipeline = Pipeline([('all_feature', all_features)])
@@ -65,8 +68,8 @@ def feature_transformer2(data,emo):
         data = [preprocess(d['text']).encode('utf-8') for d in data]
     lexicon_feat = LexiconVectorizer() # Globalise these two transformers
     embed_feat = EmbeddingVectorizer() # Globalise these two transformers
-    tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
-    all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat)])
+    ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, vocabulary=pickle.load(open("../vocab/vocab."+emo+".pkl", "rb")))
+    all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
     pipeline = Pipeline([('all_feature', all_features)])
     feat = pipeline.fit_transform(data)
     return feat
