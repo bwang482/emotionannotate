@@ -14,6 +14,8 @@ cd src
 
 python Classification.py --inputdir <input directory> --outputdir <outpur directory>
 
+e.g. 'python Classification.py --inputdir ../input --outputdir ../output'
+
 *More info in src/readme.txt*
 
 #### Input/output data format
