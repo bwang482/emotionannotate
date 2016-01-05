@@ -9,6 +9,7 @@
 
       # Dep
       - libenchant1c2a
+      - libsvm-tools
 
       # others
       - vim
