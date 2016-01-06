@@ -1,0 +1,3 @@
+src/*.pyc
+.DS_Store
+output/.DS_Store

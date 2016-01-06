@@ -7,11 +7,11 @@ from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer2, check_csr
 
 def scaling(dir,emo):
-    cmd2=["svm-scale", "-r", "../libSVM/"+emo+".range", dir+"/testing"]
+    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/"+emo+".range", dir+"/testing"]
     with open(dir+"/test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile2.close()
-
+    
 def writevec(filename,x,y):
     f=open(filename,'wb')
     for i in xrange(x.shape[0]):
@@ -20,11 +20,11 @@ def writevec(filename,x,y):
         for (j,k) in enumerate(feature[0]):
             f.write(str(j+1)+':'+str(k)+' ')
         f.write('\n')
-    f.close()
+    f.close() 
 
 def predict(tfile,pfile,emo):
     model='../models/'+'train.'+emo+'.model'
-    predcmd=["svm-predict", tfile, model, pfile]
+    predcmd=["../libSVM/svm-predict", tfile, model, pfile]
     p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
     p.communicate()
 
@@ -50,7 +50,7 @@ def classifier(data,emo,output, lexicon_feat, embed_feat):
             preds.append(p)
     pred[emo]=preds
     output.put(pred)
-
+        
 def parallelClassifier(input, lexicon_feat, embed_feat):
     preds=[]
     output = mp.Queue()
