@@ -4,7 +4,7 @@ For the SMILE project
 #### Set up
 *Python 2.7 with pip 7.1.2*
 
-Use 'pip install -r requirement.txt' to install all relevant Python dependancies.
+Use 'pip install -r requirements.txt' to install all relevant Python dependancies.
 #### Run web app
 cd src
 
