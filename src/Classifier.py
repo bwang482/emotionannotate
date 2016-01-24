@@ -7,8 +7,8 @@ from Utilities import feval, writingfile, readfeats
 from FeatureTransformer import feature_transformer2, check_csr
 
 def scaling(dir,emo):
-    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/"+emo+".range", dir+"/testing"]
-    with open(dir+"/test.scale", "w") as outfile2:
+    cmd2=["../libSVM/svm-scale", "-r", "../libSVM/"+emo+".range", dir+".testing"]
+    with open(dir+".test.scale", "w") as outfile2:
         subprocess.call(cmd2, stdout=outfile2)
     outfile2.close()
     
@@ -23,7 +23,7 @@ def writevec(filename,x,y):
     f.close() 
 
 def predict(tfile,pfile,emo):
-    model='../models/'+'train.'+emo+'.model'
+    model='../models/'+'train.'+emo+'.adapted.model'
     predcmd=["../libSVM/svm-predict", tfile, model, pfile]
     p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
     p.communicate()
@@ -31,13 +31,13 @@ def predict(tfile,pfile,emo):
 def classifier(data,emo,output, lexicon_feat, embed_feat):
     preds=[]
     pred={}
-    dir = '../output/temp2/'+emo
-    testfile = dir+"/test.scale"
-    predfile = dir+"/pred"
-    truefile = dir+'/y_test'
-    feat = feature_transformer2(data,emo, lexicon_feat, embed_feat)
+    dir = '../output/features/'+emo
+    testfile = dir+".test.scale"
+    predfile = dir+".pred"
+#    truefile = dir+'.true'
+    feat = feature_transformer2(data,emo,lexicon_feat,embed_feat)
     feat = check_csr(feat)
-    writevec(dir+'/testing',feat,1)
+    writevec(dir+'.testing',feat,1)
     scaling(dir,emo)
     predict(testfile, predfile,emo)
     with open(predfile, "r") as f:

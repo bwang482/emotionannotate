@@ -48,8 +48,8 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     lexicon_feat = LexiconVectorizer()
     embed_feat = EmbeddingVectorizer()
     ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01)
-    ngram_feat.fit(X_train)
-    pickle.dump(ngram_feat.vocabulary_,open("../vocab/vocab."+emo+".pkl","wb")) # save vocabs
+#    ngram_feat.fit(X_train)
+#    pickle.dump(ngram_feat.vocabulary_,open("../vocab/vocab."+emo+".pkl","wb")) # save vocabs
 #    tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
     all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
 #    Select = SelectFromModel(svm.LinearSVC(C=10, penalty="l1", dual=False))
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument("--d", dest="d", help="all or sub or purverCV", default='all')
     args = parser.parse_args()
     train_pos, train_neg = load_tweets("purver_tweet_files_dict", "non_purver_tweet_files_dict")
-    test_pos, test_neg = load_tweets("emotion_tweet_subset_dict", "non_emotion_tweet_subset_dict")
+    test_pos, test_neg = load_tweets("emotion_tweet_files_dict", "non_emotion_tweet_files_dict")
     main(train_pos, train_neg, test_pos, test_neg, args.d)
     
     

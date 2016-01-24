@@ -3,7 +3,7 @@ import argparse
 from argparse import ArgumentParser
 import numpy as np
 from sklearn import metrics
-from sklearn.cross_validation import ShuffleSplit
+from sklearn.cross_validation import ShuffleSplit, StratifiedShuffleSplit
 
 from Utilities import feval, writingfile, readfeats, getlabels
 from FeatureTransformer import feature_transformer
@@ -19,32 +19,35 @@ def scaling(dir,emo):
     outfile2.close()
 
 def predict(ci,gamma,kernel,wi,trfile,tfile,pfile,emo):
-#    traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-g", "1", "-w1", "1", "-w0", "1", "-q", trfile]
+    traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "1", "-q", trfile, '../models/all/'+'train.'+emo+'.aux.model']
 #    traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-q", trfile]
-    if emo == 'surprise':
-        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "3", "-q", trfile, '../models/'+'train.'+emo+'.model']
-    elif emo == 'anger':
-        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "4", "-q", trfile, '../models/'+'train.'+emo+'.model']
-    else:
-        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-q", trfile, '../models/'+'train.'+emo+'.model']
+#    if emo == 'happy':
+#        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "0.2", "-q", trfile, '../models/'+'train.'+emo+'.model']
+##    elif emo == 'anger':
+##        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "4", "-q", trfile, '../models/'+'train.'+emo+'.model']
+#    else:
+#        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "1", "-q", trfile, '../models/'+'train.'+emo+'.model']
     traincmd[2]=ci
     traincmd[4]=kernel
 #    traincmd[6] = gamma
-#    traincmd[10] = wi
+    traincmd[8] = wi
     subprocess.call(traincmd)
 #    model=trfile.split('/')[-1]+'.model'
-    model='../models/'+'train.'+emo+'.model'
+    model='../models/all/'+'train.'+emo+'.aux.model'
     predcmd=["../libSVM/svm-predict", tfile, model, pfile]
     p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
     output, err = p.communicate()
-#    preddev=float(output.split()[2].strip('%'))
-#    print "Predict: Learning LibSVM with c=%s: %f in accuracy"%(ci,preddev)
     return output
     
 def CV(ci,gamma,kernel,wi,trfile,tfile,CV_trfile,CV_tfile,CV_pfile,CV_truey):
-    trfeat = readfeats(trfile)
+    traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-w1", "1", "-w0", "1", "-q", trfile]   
+    traincmd[2]=ci
+    traincmd[4]=kernel
+    traincmd[8]=wi
+    subprocess.call(traincmd)
+    model=trfile.split('/')[-1]+'.model'
     tfeat = readfeats(tfile)
-    cv = ShuffleSplit(n=len(tfeat), n_iter=5, test_size=0.2, random_state=0)
+    cv = StratifiedShuffleSplit(y=getlabels(tfeat), n_iter=5, test_size=0.2, random_state=0)
     f1_list = []
     p_list = []
     r_list = []
@@ -54,19 +57,10 @@ def CV(ci,gamma,kernel,wi,trfile,tfile,CV_trfile,CV_tfile,CV_pfile,CV_truey):
         cv_tfile = CV_tfile+str(count)
         cv_pfile = CV_pfile+str(count)
         cv_truey = CV_truey+str(count)
-        X_train=trfeat
         X_test=tfeat[test_index]
         y_test = getlabels(X_test)
         writingfile(cv_tfile, X_test)
         writingfile(cv_truey, y_test)   
-#        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-g", "1", "-q", trfile]  
-        traincmd=["../libSVM/svm-train", "-c", "0.001", "-t", "2", "-g", "1", "-w1", "1", "-w0", "1", "-q", trfile]   
-        traincmd[2]=ci
-        traincmd[4]=kernel
-        traincmd[6]=gamma
-        traincmd[10]=wi
-        subprocess.call(traincmd)
-        model=trfile.split('/')[-1]+'.model'
         predcmd=["../libSVM/svm-predict", cv_tfile, model, cv_pfile]
         p = subprocess.Popen(predcmd, stdout=subprocess.PIPE)
         output, err = p.communicate()
@@ -82,40 +76,40 @@ def CV(ci,gamma,kernel,wi,trfile,tfile,CV_trfile,CV_tfile,CV_pfile,CV_truey):
             
 def tuneC(trfile,tfile,cv_trfile,cv_tfile,cv_pfile,cv_truey):
     kernel = 2
-#    c = [1, 10, 30, 50, 100, 1000, 0.1, 0.01, 0.05, 0.001, 0.0001]
-    c = [1, 10, 30, 50, 0.1, 0.01]
-    gamma = [float(1)/600, 0.0001, 0.00001, 0.1]
-    weights = [1,2,3,4,5]
+    c = [1, 10, 30, 50, 100, 0.1, 0.01]
+#    gamma = [float(1)/600, 0.0001, 0.00001, 0.1]
+    ga = float(1)/600
+    weights=[0.1,0.3,0.5,0.8,1,3,5,8,10]
     tunec=[]
     for ci in c:
-        for ga in gamma:
+#        for ga in gamma:
             for wi in weights:
                 cv_result=CV(str(ci),str(ga),str(kernel),str(wi),trfile,tfile,cv_trfile,cv_tfile,cv_pfile,cv_truey)
-                f1=cv_result[-1]
                 r=cv_result[0]
                 p=cv_result[1]
+                f1=cv_result[-1]
                 tunec.append([ci,ga,kernel,wi,r,p,f1])
     tunec=sorted(tunec,key=lambda x: x[-1],reverse=True)
     return tunec
 
 def main(ci,gamma,wi,data_dir,p):
     emotions = [x[1] for x in os.walk(data_dir)][0]
-    c = [30,30,0.1,0.01,10]
+    data_split = "/70-30/"
     count=0
     for emo in emotions:
         print 80*"*"
         print "Emotion is", emo
         dir = data_dir+emo
         trainfile = dir+"/train.scale"
-        CVtestfile = dir+"/test.scale.cv"
-        testfile = dir+"/test.scale"
-        predfile = dir+"/pred"
-        truefile = dir+'/y_test'
+        CVtestfile = dir+data_split+emo+".train"
+        testfile = dir+data_split+emo+".test"
+        predfile = dir+data_split+emo+".test.pred"
+        truefile = dir+data_split+emo+".test.true"
         cv_trfile = dir+'/cv/train.cv'
         cv_tfile = dir+'/cv/test.cv'
         cv_pfile = dir+'/cv/predresults.cv'
         cv_truey = dir+'/cv/y_test.cv'
-        ci = c[count]
+#        ci = c[count]
         count+=1
         
         if 'scale' in p:
@@ -131,9 +125,7 @@ def main(ci,gamma,wi,data_dir,p):
             bestgamma=tunec[0][1]
             bestwi=tunec[0][3]
             bestCV=tunec[0][-1]
-#                for i in tunec:
-#                    print "CV: Learning LibSVM with kernel=rbf and C=%f and gamma=(1/num_feature), its F1 is %f"%(i[0],i[-1])
-            print "Tuning: Five-fold CV on %s, the best F1 is %f at c=%f, gamma=%f and wi=%s"%(trainfile,bestCV,bestc,bestgamma,str(bestwi))
+            print "Tuning: Five-fold CV on %s, the best F1 is %f at c=%s, gamma=%s and wi=%s"%(trainfile,bestCV,str(bestc),str(bestgamma),str(bestwi))
         
         if ('tune' in p) and ('pred' in p):  
             print "---Model fitting and prediction"
@@ -159,7 +151,7 @@ if __name__ == "__main__":
     parser.add_argument("--c", dest="ci", help="Penalty parameter, C", default=1)
     parser.add_argument("--w", dest="wi", help="Weight penalty for class 0", default=1)
     parser.add_argument("--gamma", dest="gamma", help="Kernel coefficient parameter, gamma", default=0.01)
-    parser.add_argument("--steps", dest="p", help="Choose classification steps: e.g. scale,tune,pred,evaluation or scale,pred,evaluation", default='scaling,tuning,evaluation')
+    parser.add_argument("--steps", dest="p", help="Choose classification steps: e.g. scale,tune,pred,evaluation or scale,pred,evaluation", default='scale,tune,evaluation')
     args = parser.parse_args()
     data_dir = '../output/'+args.d+'/'
  

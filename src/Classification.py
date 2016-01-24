@@ -1,9 +1,11 @@
 import json, os
-import codecs, sys
+import codecs
+import sys
 from argparse import ArgumentParser
 
 from Classifier import parallelClassifier, initFeatureProcessors
 
+print "\nPlease wait until the initialisation is finished..."
 global lexicon_feat, embed_feat
 lexicon_feat = None
 embed_feat = None
@@ -44,17 +46,16 @@ if __name__ == '__main__':
             lexicon_feat, embed_feat = initFeatureProcessors()
         elif not embed_feat:
             lexicon_feat, embed_feat = initFeatureProcessors()
-        inputs = raw_input("\n\nProvide 2 arguments here: inputDir outputDir (CTRL-C to exit)\ne.g., /home/user/inputFolder home/user/Desktop/outputFolder\n")
-        #sys.stdin.readline()
-        dirTokens = inputs.split(" ")
-        inputDir = dirTokens[0]
-        outputDir = dirTokens[1]
-        classify(inputDir, outputDir)
-
-        #parser = ArgumentParser()
-        #parser.add_argument("--inputdir", dest="source_dir", help="input directory")
-        #parser.add_argument("--outputdir", dest="output_dir", help="output directory")
-        #args = parser.parse_args()
-        #classify(args.source_dir,args.output_dir)
+        answer='yes'
+        if answer.lower().startswith("y"):
+            inputs = raw_input("\n\nPlease type your data input directory and results output directory here (with white space in between)\ne.g. /home/user/inputFolder home/user/Desktop/outputFolder\n(Type CTRL-C to exit)\n")
+            dirTokens = inputs.split(" ")
+            inputDir = dirTokens[0]
+            outputDir = dirTokens[1]
+            classify(inputDir, outputDir)
+            answer = raw_input('Do you want to continue? ')
+            if answer.lower().startswith("n"):
+               print("Thanks for using our emotion classifier.")
+               exit()
     
                 

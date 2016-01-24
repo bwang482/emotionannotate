@@ -1,7 +1,24 @@
 import numpy as np
 import os
 import Config
-from sklearn.cross_validation import train_test_split                   
+from sklearn.cross_validation import train_test_split   
+
+def class_dist(dir):
+    emotions=['anger','disgust','happy','surprise','sad']
+    for emo in emotions:
+        f=open(dir+'/emo_'+emo+'_raw.txt','r')
+        lines = f.readlines()
+        p1=len(lines)
+        f=open(dir+'/hash_'+emo+'_raw.txt','r')
+        lines = f.readlines()
+        p2=len(lines)
+        f=open(dir+'/hash_non'+emo+'_raw.txt','r')
+        lines = f.readlines()
+        n2=len(lines)
+        f=open(dir+'/emo_non'+emo+'_raw.txt','r')
+        lines = f.readlines()
+        n1=len(lines)
+        print float((p1+p2))/(p1+p2+n1+n2), float((n1+n2))/(p1+p2+n1+n2)
 
 def load_tweets(emotion_tweet_dict, non_emotion_tweet_dict):
     # Load positive tweets from files to memory
