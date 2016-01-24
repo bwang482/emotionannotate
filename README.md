@@ -14,9 +14,9 @@ python app.py
 
 cd src
 
-python Classification.py --inputdir <input directory> --outputdir <outpur directory>
+python Classification.py
 
-e.g. 'python Classification.py --inputdir ../input --outputdir ../output'
+*Then follow the instructions.*
 
 *More info in src/readme.txt*
 
