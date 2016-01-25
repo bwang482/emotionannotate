@@ -5,10 +5,12 @@ import enchant
 
 USERID = "@USERID"
 URL = "URL"
-    
+
+
 class Transformer(object):
     def __init__(self):
         super(Transformer, self).__init__()
+
 
 class RepeatTransformer(Transformer):
     def __init__(self, aux_dict={}):
@@ -16,13 +18,13 @@ class RepeatTransformer(Transformer):
         self.dict = enchant.Dict("en")
         self.aux_dict = aux_dict
         self.repeat_regex = re.compile(r'(\w)\1')
-        
+
     def transform(self, token):
         while not ((self.dict.check(token)) or (token in self.aux_dict)):
             match = self.repeat_regex.search(token)
             if not match:
                 break
-            sub = match.groups()[0] if match.groups()[0] != None else ''
+            sub = match.groups()[0] if match.groups()[0] is not None else ''
             token = token[:match.start()] + sub + token[match.end():]
         return token
 
@@ -39,7 +41,7 @@ class SubstitutionTransformer(Transformer):
         self.is_url = re.compile(r'((www\.[\s]+)|(https?://[^\s]+))')
         self.is_id = re.compile(r'@[^\s]+')
         self.is_hashtag = re.compile(r'#[\w]+')
-        
+
     def transform(self, tweet):
         tokens = self.tokenise(tweet)
         try:
@@ -49,7 +51,7 @@ class SubstitutionTransformer(Transformer):
         except UnicodeDecodeError as e:
             print tokens
             raise e
-        
+
     def tokenise(self, tweet):
         chunks = tweet.lower().split()
         tokens = []
@@ -65,10 +67,10 @@ class SubstitutionTransformer(Transformer):
             else:
                 tokens += [(chunk, False)]
         return tokens
-    
+
     def process(self, (token, is_word)):
         if is_word:
-            token = self.repeat_transformer.transform(token)                
+            token = self.repeat_transformer.transform(token)
             if token in self.substitution_dict:
                 token = self.substitution_dict[token]
             else:
@@ -76,7 +78,7 @@ class SubstitutionTransformer(Transformer):
                 # Spell checking removed due to speed issues
                 pass
         return token
-    
+
 
 class SanitisationTransformer(SubstitutionTransformer):
     def tokenise(self, tweet):
@@ -99,6 +101,7 @@ class SanitisationTransformer(SubstitutionTransformer):
 class HashtagTransformer(Transformer):
     HASH = '#'
     SPACE = ' '
+
     def transform(self, tweet):
         tokens = tweet.split()
         while len(tokens) > 0 and self.is_hashtag(tokens[-1]):
@@ -118,6 +121,8 @@ Used by bullying classifer to efficiently sanitise tweets.
 This includes removing stray characters, HTTP links, pic.twitter.com image links.
 Also carries out output of bullying data to ARFF format for use in WEKA.
 '''
+
+
 class CharacterSanitiseTransformer(Transformer):
 
     def __init__(self):
@@ -141,5 +146,4 @@ class CharacterSanitiseTransformer(Transformer):
         sanitised_tweet = tweet + " "
         for regex, replacement in self.regex_replace_pairs:
             sanitised_tweet = regex.sub(replacement, sanitised_tweet)
-
         return sanitised_tweet.lower()

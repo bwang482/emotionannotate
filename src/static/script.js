@@ -7,7 +7,6 @@ $(document).ready(function(){
               data: JSON.stringify({text: uInput}),
               contentType: 'application/json',
               success: function(response){
-                  console.log(response);
                    $("#result1").text(response.anger);
                     $("#result2").text(response.disgust);
                     $("#result3").text(response.happy);

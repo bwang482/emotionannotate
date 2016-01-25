@@ -18,21 +18,24 @@ from Preprocessor import preprocess
 from LexiconFeature import LexiconVectorizer
 from EmbeddingFeature import EmbeddingVectorizer
 
-def writevec(filename,x,y):
-    f=open(filename,'wb')
+
+def writevec(filename, x, y):
+    f = open(filename, 'wb')
     for i in xrange(len(y)):
         f.write(str(y[i])+'\t')
-        feature=x[i].toarray()
-        for (j,k) in enumerate(feature[0]):
+        feature = x[i].toarray()
+        for (j, k) in enumerate(feature[0]):
             f.write(str(j+1)+':'+str(k)+' ')
         f.write('\n')
-    f.close() 
-    
+    f.close()
+
+
 def writey(filename, y):
-    f=open(filename,'wb')
+    f = open(filename, 'wb')
     for i in y:
         f.write(str(i)+'\n')
-    f.close() 
+    f.close()
+
 
 def check_csr(feat):
     if scipy.sparse.isspmatrix_csr(feat):
@@ -41,15 +44,16 @@ def check_csr(feat):
         feat = scipy.sparse.csr_matrix(feat)
     return feat
 
+
 def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     stopWords = stopwords.words('english')
     X_train, y_train = format_data(emo, train_pos, train_neg)
     X_test, y_test = format_data(emo, test_pos, test_neg)
     lexicon_feat = LexiconVectorizer()
     embed_feat = EmbeddingVectorizer()
-    ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01)
-    ngram_feat.fit(X_train)
-    pickle.dump(ngram_feat.vocabulary_,open("../vocab/vocab."+emo+".pkl","wb")) # save vocabs
+    ngram_feat = CountVectorizer(ngram_range=(1, 3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01)
+#    ngram_feat.fit(X_train)
+#    pickle.dump(ngram_feat.vocabulary_,open("../vocab/vocab."+emo+".pkl","wb")) # save vocabs
 #    tfidf_feat = TfidfVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, use_idf=True)
     all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
 #    Select = SelectFromModel(svm.LinearSVC(C=10, penalty="l1", dual=False))
@@ -60,17 +64,19 @@ def feature_transformer(emo, train_pos, train_neg, test_pos, test_neg):
     feat_size = feat_train.shape[1]
     return feat_train, y_train, feat_test, y_test, feat_size
 
-def feature_transformer2(data,emo, lexicon_feat, embed_feat):
+
+def feature_transformer2(data, emo, lexicon_feat, embed_feat):
     stopWords = stopwords.words('english')
     if type(data) == dict:
         data = [preprocess(data['text']).encode('utf-8')]
     elif type(data) == list:
         data = [preprocess(d['text']).encode('utf-8') for d in data]
-    ngram_feat = CountVectorizer(ngram_range=(1,3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, vocabulary=pickle.load(open("../vocab/vocab."+emo+".pkl", "rb")))
+    ngram_feat = CountVectorizer(ngram_range=(1, 3), analyzer='word', binary=False, stop_words=stopWords, min_df=0.01, vocabulary=pickle.load(open("../vocab/vocab."+emo+".pkl", "rb")))
     all_features = FeatureUnion([('lexicon_feature', lexicon_feat), ('embeddings', embed_feat), ('ngrams', ngram_feat)])
     pipeline = Pipeline([('all_feature', all_features)])
     feat = pipeline.fit_transform(data)
     return feat
+
 
 def main(train_pos, train_neg, test_pos, test_neg, d):
     for emo in train_pos.keys():
@@ -80,8 +86,8 @@ def main(train_pos, train_neg, test_pos, test_neg, d):
         feat_train = check_csr(feat_train)
         feat_test = check_csr(feat_test)
         print "Writing feature files"
-        writevec('../output/'+d+'/'+emo+'/testing',feat_test,y_test)
-        writevec('../output/'+d+'/'+emo+'/training',feat_train,y_train)
+        writevec('../output/'+d+'/'+emo+'/testing', feat_test, y_test)
+        writevec('../output/'+d+'/'+emo+'/training', feat_train, y_train)
         writey('../output/'+d+'/'+emo+'/y_test', y_test)
         writey('../output/'+d+'/'+emo+'/y_train', y_train)
         print "Feature size =", feat_size
@@ -89,11 +95,9 @@ def main(train_pos, train_neg, test_pos, test_neg, d):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--d", dest="d", help="all or sub or purverCV", default='all')
+    # Please make sure there are 5 sub folders for each emotion within the output folder e.g. test1, provided below:
+    parser.add_argument("--d", dest="d", help="Feature output folder", default='test1')
     args = parser.parse_args()
     train_pos, train_neg = load_tweets("purver_tweet_files_dict", "non_purver_tweet_files_dict")
     test_pos, test_neg = load_tweets("emotion_tweet_subset_dict", "non_emotion_tweet_subset_dict")
     main(train_pos, train_neg, test_pos, test_neg, args.d)
-    
-    
-    
