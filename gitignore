@@ -2,5 +2,3 @@ src/*.pyc
 .DS_Store
 output/.DS_Store
 data/
-aSVM/*
-libSVM/*
