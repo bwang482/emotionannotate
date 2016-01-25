@@ -1,24 +1,26 @@
 import numpy as np
 import os
 import Config
-from sklearn.cross_validation import train_test_split   
+from sklearn.cross_validation import train_test_split
+
 
 def class_dist(dir):
-    emotions=['anger','disgust','happy','surprise','sad']
+    emotions = ['anger', 'disgust', 'happy', 'surprise', 'sad']
     for emo in emotions:
-        f=open(dir+'/emo_'+emo+'_raw.txt','r')
+        f = open(dir+'/emo_'+emo+'_raw.txt', 'r')
         lines = f.readlines()
-        p1=len(lines)
-        f=open(dir+'/hash_'+emo+'_raw.txt','r')
+        p1 = len(lines)
+        f = open(dir+'/hash_'+emo+'_raw.txt', 'r')
         lines = f.readlines()
-        p2=len(lines)
-        f=open(dir+'/hash_non'+emo+'_raw.txt','r')
+        p2 = len(lines)
+        f = open(dir+'/hash_non'+emo+'_raw.txt', 'r')
         lines = f.readlines()
-        n2=len(lines)
-        f=open(dir+'/emo_non'+emo+'_raw.txt','r')
+        n2 = len(lines)
+        f = open(dir+'/emo_non'+emo+'_raw.txt', 'r')
         lines = f.readlines()
-        n1=len(lines)
+        n1 = len(lines)
         print float((p1+p2))/(p1+p2+n1+n2), float((n1+n2))/(p1+p2+n1+n2)
+
 
 def load_tweets(emotion_tweet_dict, non_emotion_tweet_dict):
     # Load positive tweets from files to memory
@@ -42,53 +44,24 @@ def load_tweets(emotion_tweet_dict, non_emotion_tweet_dict):
                 negative_tweets[emo].append(tweet)
     return positive_tweets, negative_tweets
 
-#def format_data(emo, train_pos, train_neg, test_pos, test_neg):
-#    train=[]
-#    for tweet in train_pos[emo]:
-#        train.append((tweet.strip(),1))
-#    for tweet in train_neg[emo]:
-#        train.append((tweet.strip(),0))
-#    test=[]
-#    for tweet in test_pos[emo]:
-#        test.append((tweet.strip(),1))
-#    for tweet in test_neg[emo]:
-#        test.append((tweet.strip(),0)) 
-#           
-#    X_train = []
-#    X_test = []
-#    y_train = []
-#    y_test = []
-#    for tweet, label in train:
-#        if tweet != '':
-#            X_train.append(tweet)
-#            y_train.append(label)
-#    for tweet, label in test:
-#        X_test.append(tweet)
-#        y_test.append(label)        
-#    X_train = np.asarray(X_train)
-#    X_test = np.asarray(X_test)
-#    y_train = np.asarray(y_train)
-#    y_test = np.asarray(y_test)   
-#     
-#    return X_train, X_test, y_train, y_test
-            
+
 def format_data(emo, pos, neg):
-    d=[]
+    d = []
     for tweet in pos[emo]:
-        d.append((tweet.strip(),1))
+        d.append((tweet.strip(), 1))
     for tweet in neg[emo]:
-        d.append((tweet.strip(),0))
-           
+        d.append((tweet.strip(), 0))
     X = []
     y = []
     for tweet, label in d:
         if tweet != '':
             X.append(tweet)
-            y.append(label)      
+            y.append(label)
     X = np.asarray(X)
     y = np.asarray(y)
     return X, y
-    
+
+
 def feval(truefile, predfile):
     truefile = os.path.abspath(truefile)
     predfile = os.path.abspath(predfile)
@@ -107,7 +80,8 @@ def feval(truefile, predfile):
     f1.close()
     f2.close()
     return y_test, y_predicted
-    
+
+
 def getlabels(X):
     y = []
     for i in X:
@@ -115,10 +89,12 @@ def getlabels(X):
         y.append(int(i[0]))
     return y
 
+
 def writingfile(filepath, X):
-    with open(filepath,'w') as f:
+    with open(filepath, 'w') as f:
         for item in X:
             f.write("%s\n" % item)
+
 
 def readfeats(filepath):
     f = open(filepath, 'r')
@@ -129,36 +105,38 @@ def readfeats(filepath):
     d = np.asarray(d)
     return d
 
+
 def frange(start, stop, step):
     r = start
     while r <= stop:
         yield r
-        r *= step    
-        
+        r *= step
+
+
 def subset_data(sub_dir='../data/subset/'):
     pos, neg = load_tweets("emotion_tweet_files_dict", "non_emotion_tweet_files_dict")
     for emo in pos.keys():
-        d=[]
+        d = []
         for tweet in pos[emo]:
-            d.append((tweet.strip(),1))
+            d.append((tweet.strip(), 1))
         for tweet in neg[emo]:
-            d.append((tweet.strip(),0)) 
+            d.append((tweet.strip(), 0))
         X = []
         y = []
         for tweet, label in d:
             X.append(tweet)
-            y.append(label)  
+            y.append(label)
         X = np.asarray(X)
-        y = np.asarray(y) 
+        y = np.asarray(y)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)
-        pos_test=[]
-        neg_test=[]
-        for i,j in enumerate(X_test):
+        pos_test = []
+        neg_test = []
+        for i, j in enumerate(X_test):
             if y_test[i] == 1:
                 pos_test.append(j)
             elif y_test[i] == 0:
                 neg_test.append(j)
         pos_dir = sub_dir+'emo_'+emo+'.txt'
         neg_dir = sub_dir+'emo_non'+emo+'.txt'
-        writingfile(pos_dir,pos_test)
-        writingfile(neg_dir,neg_test)
+        writingfile(pos_dir, pos_test)
+        writingfile(neg_dir, neg_test)

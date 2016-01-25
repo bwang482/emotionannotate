@@ -1,29 +1,25 @@
 import numpy as np
 from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
-from sklearn.pipeline import FeatureUnion
 from sklearn import svm
-from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler
 
 from Utilities import load_tweets
 from FeatureTransformer import feature_transformer
 
-def predict(x_train, y_train, x_test, y_test,emo,ci):
+
+def predict(x_train, y_train, x_test, y_test, emo, ci):
     clf = svm.SVC(kernel='rbf', C=ci, class_weight='balanced')
-#    clf = svm.LinearSVC(C=10, penalty="l1", dual=False, class_weight='balanced')
     clf.fit(x_train, y_train)
 #    joblib.dump(clf, '../models/'+emo+'.skl')
     y_predicted = clf.predict(x_test)
     print 'Precision score: ', metrics.precision_score(y_test, y_predicted, average='binary')
     print 'Recall score: ', metrics.recall_score(y_test, y_predicted, average='binary')
-    print 'F1 score: ', metrics.f1_score(y_test, y_predicted, average='binary') 
+    print 'F1 score: ', metrics.f1_score(y_test, y_predicted, average='binary')
+
 
 def main(train_pos, train_neg, test_pos, test_neg):
-#    c = [30,30,0.1,0.01,10]
-    c = [1, 1, 30, 1, 50]
-    count=0
     for emo in train_pos.keys():
         print 80*"*"
         print "Emotion is", emo
@@ -36,10 +32,9 @@ def main(train_pos, train_neg, test_pos, test_neg):
 #        feat_train_scaled = scaler.fit_transform(feat_train)
 #        feat_test_scaled = scaler.transform(feat_test)
         print "---Model fitting and prediction"
-        ci = c[count]
-        count+=1
-        predict(feat_train, y_train, feat_test, y_test,emo,ci)
+        predict(feat_train, y_train, feat_test, y_test, emo, ci)
         print 80*"*"
+
 
 if __name__ == "__main__":
     train_pos, train_neg = load_tweets("purver_tweet_files_dict", "non_purver_tweet_files_dict")

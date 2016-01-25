@@ -1,4 +1,5 @@
-import json, os
+import json
+import os
 import codecs
 import sys
 from argparse import ArgumentParser
@@ -11,6 +12,8 @@ lexicon_feat = None
 embed_feat = None
 
 initFeatureProcessors()
+
+
 def read_tweets(inputdir):
     files = [f for f in os.listdir(inputdir) if f.endswith('.json')]
     tweets = []
@@ -21,7 +24,8 @@ def read_tweets(inputdir):
                 data = json.loads(line)
                 tweets.append(data)
     return tweets
-    
+
+
 def write_results(outputdir, results):
     fp = open(outputdir+'/results.json', 'wb')
     for result in results:
@@ -29,7 +33,8 @@ def write_results(outputdir, results):
         fp.write('\n')
     fp.close()
 
-def classify(inputdir,outputdir):
+
+def classify(inputdir, outputdir):
     import datetime
     global lexicon_feat, embed_feat
     print datetime.datetime.now()
@@ -37,8 +42,8 @@ def classify(inputdir,outputdir):
     results = parallelClassifier(tweets, lexicon_feat, embed_feat)
     print datetime.datetime.now()
     write_results(outputdir, results)
-    
-    
+
+
 if __name__ == '__main__':
     global lexicon_feat, embed_feat
     while True:
@@ -46,16 +51,16 @@ if __name__ == '__main__':
             lexicon_feat, embed_feat = initFeatureProcessors()
         elif not embed_feat:
             lexicon_feat, embed_feat = initFeatureProcessors()
-        answer='yes'
+        answer = 'yes'
         if answer.lower().startswith("y"):
-            inputs = raw_input("\n\nPlease type your data input directory and results output directory here (with white space in between)\ne.g. /home/user/inputFolder home/user/Desktop/outputFolder\n(Type CTRL-C to exit)\n")
+            print "\n\n"
+            print "Please type your data input directory and results output directory here (with white space in between)"
+            inputs = raw_input("e.g. /home/user/inputFolder home/user/Desktop/outputFolder\n")
             dirTokens = inputs.split(" ")
             inputDir = dirTokens[0]
             outputDir = dirTokens[1]
             classify(inputDir, outputDir)
             answer = raw_input('Do you want to continue? ')
             if answer.lower().startswith("n"):
-               print("Thanks for using our emotion classifier.")
-               exit()
-    
-                
+                print("Thanks for using our emotion classifier.")
+                exit()
