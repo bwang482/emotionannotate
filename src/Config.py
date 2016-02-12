@@ -10,7 +10,7 @@
 
 emotion_tweet_dir = "../data/preprocessed/"
 emotion_subset_dir = "../data/subset/"
-purver_tweet_dir = "../data/purver_old/"
+purver_tweet_dir = "../data/mixed_files.eacl-exp2/preprocessed/"
 num_cv_folds = 10
 emotion_model_name = "../saved_models/"
 

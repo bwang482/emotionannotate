@@ -7,6 +7,7 @@ from sklearn.cross_validation import train_test_split
 def class_dist(dir):
     emotions = ['anger', 'disgust', 'happy', 'surprise', 'sad']
     for emo in emotions:
+        print emo
         f = open(dir+'/emo_'+emo+'_raw.txt', 'r')
         lines = f.readlines()
         p1 = len(lines)
@@ -19,7 +20,7 @@ def class_dist(dir):
         f = open(dir+'/emo_non'+emo+'_raw.txt', 'r')
         lines = f.readlines()
         n1 = len(lines)
-        print float((p1+p2))/(p1+p2+n1+n2), float((n1+n2))/(p1+p2+n1+n2)
+        print "POS: %f; NEG: %f"%(float((p1+p2))/(p1+p2+n1+n2), float((n1+n2))/(p1+p2+n1+n2))
 
 
 def load_tweets(emotion_tweet_dict, non_emotion_tweet_dict):
@@ -140,3 +141,38 @@ def subset_data(sub_dir='../data/subset/'):
         neg_dir = sub_dir+'emo_non'+emo+'.txt'
         writingfile(pos_dir, pos_test)
         writingfile(neg_dir, neg_test)
+
+def vocab(emotion_tweet_dict, non_emotion_tweet_dict, emo):
+    import re
+    import string
+    from nltk.corpus import stopwords
+    from sklearn.feature_extraction.text import CountVectorizer
+    stopWords = stopwords.words('english')
+    regex = re.compile('[%s]' % re.escape(string.punctuation))
+    vectorizer = CountVectorizer(min_df=1, analyzer='word',stop_words=stopWords, binary=True)
+    pos, neg = load_tweets(emotion_tweet_dict, non_emotion_tweet_dict)
+    emo_tweets, y = format_data(emo, pos, neg)
+    tweets=[]
+    for i in emo_tweets:
+        i = i.decode('utf-8')
+        i = re.sub(r'@USERID', '', i)
+        i = re.sub(r'URL', '', i)
+        i = re.sub(r're-tweet', '', i)
+        i = re.sub(r'\s+', ' ', i)
+        new = []
+        for word in i.split():
+            word = regex.sub(u'', word)
+            if (not word in stopWords) and (not word == u''):
+               new.append(word)
+        new = ' '.join(new)
+        tweets.append(new)
+    X = vectorizer.fit_transform(tweets)
+    vocab_dict = vectorizer.vocabulary_
+    vocab=[]
+    for key, value in vocab_dict.iteritems():
+        temp = key
+        vocab.append(temp)
+    return vocab
+    
+    
+    
