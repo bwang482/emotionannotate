@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template, abort, jsonify, request, redirect, json
-from Classifier import parallelClassifier, initFeatureProcessors
+from Classifier import sequentClassifier, initFeatureProcessors
 app = Flask(__name__)
 app.debug = True
 
@@ -15,7 +15,7 @@ def learning():
     lexicon_feat, embed_feat = initFeatureProcessors()
     data = json.loads(request.data)
     # try 'lucky @USERID ! good luck @USERID & see you soon :) @USERID @USERID'
-    result = parallelClassifier([data], lexicon_feat, embed_feat)
+    result = sequentClassifier([data], lexicon_feat, embed_feat)
     emotions = result[0]['emotions']
     return jsonify(emotions)
 

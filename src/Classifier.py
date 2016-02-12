@@ -57,6 +57,43 @@ def classifier(data, emo, output, lexicon_feat, embed_feat):
     pred[emo] = preds
     output.put(pred)
 
+def sequentClassifier(input, lexicon_feat, embed_feat):
+    pred = {}
+    preds = []
+    emotions = ['anger', 'disgust', 'happy', 'sad', 'surprise']
+    for emo in emotions:
+        temp_pred = []
+        dir = '../output/features/'+emo
+        testfile = dir+".test.scale"
+        predfile = dir+".pred"
+        feat = feature_transformer2(input, emo, lexicon_feat, embed_feat)
+        feat = check_csr(feat)
+        writevec(dir+'.testing', feat, 1)
+        scaling(dir, emo)
+        predict(testfile, predfile, emo)
+        with open(predfile, "r") as f:
+            for l in f.readlines():
+                l = l.strip()
+                if (l == '1') or (l == 1):
+                    p = 'yes'
+                else:
+                    p = 'no'
+                temp_pred.append(p)
+        pred[emo] = temp_pred
+        
+    for i in xrange(len(input)):
+        temp_pred = {}
+        if 'text' in input[i].keys():
+            temp_pred['text'] = input[i]['text']
+        if 'tweetid' in input[i].keys():
+            temp_pred['tweetid'] = input[i]['tweetid']
+        emo = {}
+        for e in emotions:
+            emo[e] = pred[e][i]
+        temp_pred['emotions'] = emo
+        preds.append(temp_pred)
+    return preds  
+
 
 def parallelClassifier(input, lexicon_feat, embed_feat):
     preds = []

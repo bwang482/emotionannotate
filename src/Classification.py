@@ -1,10 +1,11 @@
 import json
+#from guppy import hpy
 import os
 import codecs
 import sys
 from argparse import ArgumentParser
 
-from Classifier import parallelClassifier, initFeatureProcessors
+from Classifier import initFeatureProcessors, sequentClassifier
 
 print "\nPlease wait until the initialisation is finished..."
 global lexicon_feat, embed_feat
@@ -35,11 +36,14 @@ def write_results(outputdir, results):
 
 
 def classify(inputdir, outputdir):
+#    h = hpy()
+#    h.setref()   
     import datetime
     global lexicon_feat, embed_feat
     print datetime.datetime.now()
     tweets = read_tweets(inputdir)
-    results = parallelClassifier(tweets, lexicon_feat, embed_feat)
+    results = sequentClassifier(tweets, lexicon_feat, embed_feat)
+#    print h.heap() #printing out memory usage
     print datetime.datetime.now()
     write_results(outputdir, results)
 
