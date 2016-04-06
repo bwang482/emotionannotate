@@ -76,14 +76,12 @@ def CV(ci, gamma, kernel, wi, trfile, tfile, CV_trfile, CV_tfile, CV_pfile, CV_t
 def tuneC(trfile, tfile, cv_trfile, cv_tfile, cv_pfile, cv_truey):
     kernel = 2
     c = [1, 10, 30, 50, 100, 0.1, 0.01]
-#    gamma = [float(1)/600, 0.0001, 0.00001, 0.1]
-    ga = float(1)/600  # though the default gamma value is used
+    gamma = float(1)/600  # though the default gamma value is used
     weights = [0.1, 0.3, 0.5, 0.8, 1, 3, 5, 8, 10]
     tunec = []
     for ci in c:
-#        for ga in gamma:
             for wi in weights:
-                cv_result = CV(str(ci), str(ga), str(kernel), str(wi), trfile, tfile, cv_trfile, cv_tfile, cv_pfile, cv_truey)
+                cv_result = CV(str(ci), str(gamma), str(kernel), str(wi), trfile, tfile, cv_trfile, cv_tfile, cv_pfile, cv_truey)
                 r = cv_result[0]
                 p = cv_result[1]
                 f1 = cv_result[-1]

@@ -48,7 +48,7 @@ def predict(ci, gamma, kernel, wi, trfile, tfile, pfile, dir, emo):
 
 def CV2(ci, gamma, kernel, wi, trfile, CV_trfile, CV_tfile, CV_pfile, CV_truey):
     feats = readfeats(trfile)
-    cv = StratifiedShuffleSplit(y=getlabels(feats), n_iter=5, test_size=0.3, random_state=0)
+    cv = StratifiedShuffleSplit(y=getlabels(feats), n_iter=5, test_size=0.2, random_state=0)
     f1_list = []
     p_list = []
     r_list = []
@@ -88,10 +88,9 @@ def CV2(ci, gamma, kernel, wi, trfile, CV_trfile, CV_tfile, CV_pfile, CV_truey):
 
 def tune(trfile, cv_trfile, cv_tfile, cv_pfile, cv_truey):
     kernel = 2
-#    c = [0.01, 0.1, 1, 10, 30, 50, 100]
+    c = [0.01, 0.1, 1, 10, 30, 50, 100]
     ga = float(1)/620  # though the default gamma value is used
 #    weights = [0.1, 0.3, 0.5, 0.8, 1, 3, 5, 8, 10]
-    c=[120]
     weights=[1]
     tune_ = []
     for ci in c:
