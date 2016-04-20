@@ -13,7 +13,7 @@ SPACE = ' '
 
 def preprocess(tweet):
     abbv_dict = json.load(open("../other/abbreviations.json"))
-    emo_lexica_dict = json.load(open("../other/emotions.json"))
+    emo_lexica_dict = json.load(open("../other/emoticons.json"))
     for emoticon in emo_lexica_dict[u'emoticons']:
         abbv_dict[emoticon] = ' '
     for word in emo_lexica_dict[u'words']:
@@ -76,7 +76,7 @@ class Preprocessor(object):
 if __name__ == '__main__':
     emos = ['happy', 'angry', 'disgust', 'sad', 'surprise']
     abbv_dict = json.load(open("../other/abbreviations.json"))
-    emo_lexica_dict = json.load(open("../other/emotions.json"))
+    emo_lexica_dict = json.load(open("../other/emoticons.json"))
     # Add emoticons from emotions.json
     for emoticon in emo_lexica_dict[u'emoticons']:
         abbv_dict[emoticon] = ' '
